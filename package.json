@@ -11,6 +11,7 @@
 	"license": "ISC",
 	"description": "Backend for YouTube clone",
 	"devDependencies": {
-		"nodemon": "^3.1.9"
+		"nodemon": "^3.1.9",
+		"prettier": "^3.5.0"
 	}
 }
