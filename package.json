@@ -1,12 +1,16 @@
 {
-	"name": "mega-project",
+	"name": "yt-clone-backend",
 	"version": "1.0.0",
 	"main": "index.js",
+	"type": "module",
 	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1"
+		"dev": "nodemon ./src/index.js"
 	},
 	"keywords": [],
 	"author": "Aditya Ghosh",
 	"license": "ISC",
-	"description": ""
+	"description": "Backend for YouTube clone",
+	"devDependencies": {
+		"nodemon": "^3.1.9"
+	}
 }
