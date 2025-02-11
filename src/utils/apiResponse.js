@@ -6,3 +6,5 @@ class APIResponse {
         this.success = statuscode < 400;
     }
 }
+
+export { APIResponse };
