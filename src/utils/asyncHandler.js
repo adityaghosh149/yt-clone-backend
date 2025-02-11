@@ -7,7 +7,6 @@ const asyncHandler = (requestHandler) => {
 };
 
 export { asyncHandler };
-export { asyncHandler };
 
 // try catch version
 // const asyncHandler = (fn) => {
