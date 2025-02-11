@@ -1,15 +1,15 @@
 class APIError extends Error {
     constructor(
-        statuscode,
+        statusCode,
         message = "SOMETHING WENT WRONG!",
         errors = [],
         stack = ""
     ) {
         super(message);
-        this.statuscode = statuscode;
+        this.statusCode = statusCode;
         this.data = null;
         this.message = message;
-        this.success = statuscode < 400;
+        this.success = statusCode < 400;
         this.errors = errors;
 
         if (stack) {
