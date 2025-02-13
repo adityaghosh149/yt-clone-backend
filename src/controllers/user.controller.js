@@ -153,7 +153,14 @@ const loginUser = asyncHandler(async (req, res) => {
         await generateAccessAndRefreshTokens(user);
 
     // send cookies
-    const loggedInUser = {};
+    const loggedInUser = {
+        id: user?._id,
+        username: user?.username,
+        email: user?.email,
+        fullName: user?.fullName,
+        avatar: user?.avatar,
+    };
+
     const options = {
         httpOnly: true,
         secure: true,
