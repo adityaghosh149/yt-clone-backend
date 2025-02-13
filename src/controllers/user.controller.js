@@ -1,3 +1,4 @@
+import jwt from "jsonwebtoken";
 import { User } from "../models/user.model.js";
 import { APIError } from "../utils/apiError.js";
 import { APIResponse } from "../utils/apiResponse.js";
@@ -209,4 +210,72 @@ const logOutUser = asyncHandler(async (req, res) => {
         .json(new APIResponse(200, {}, "✅ User logged out successfully"));
 });
 
-export { loginUser, logOutUser, registerUser };
+const refreshAccessToken = asyncHandler(async (req, res) => {
+    const incomingRefreshToken =
+        req.cookies?.refreshAccessToken || req.body.refreshAccessToken;
+
+    if (incomingRefreshToken) {
+        throw new APIError(401, "🔐 Unauthorized request");
+    }
+
+    try {
+        const decodedToken = jwt.verify(
+            incomingRefreshToken,
+            process.env.REFRESH_TOKEN_SECRET
+        );
+
+        const user = await User.findById(decodedToken?._id);
+
+        if (!user) {
+            throw new APIError(401, "🚫 Invalid refresh token");
+        }
+
+        if (incomingRefreshToken !== user?.refreshToken) {
+            throw new APIError(
+                401,
+                "🔄 Refresh token is expired or already used!"
+            );
+        }
+
+        const { newAccessToken, newRefreshToken } =
+            await generateAccessAndRefreshTokens(user);
+
+        // send cookies
+        const loggedInUser = {
+            id: user?._id,
+            username: user?.username,
+            email: user?.email,
+            fullName: user?.fullName,
+            avatar: user?.avatar,
+        };
+
+        const options = {
+            httpOnly: true,
+            secure: true,
+        };
+
+        // send res
+        return res
+            .status(200)
+            .cookie("accessToken", newAccessToken, options)
+            .cookie("refreshToken", newRefreshToken, options)
+            .json(
+                new APIResponse(
+                    200,
+                    {
+                        user: loggedInUser,
+                        newAccessToken,
+                        newRefreshToken,
+                    },
+                    "✅ Access token refreshed"
+                )
+            );
+    } catch (error) {
+        throw new APIError(
+            401,
+            error?.message || "❌ Invalid Refresh Token! 🔄🚫"
+        );
+    }
+});
+
+export { loginUser, logOutUser, refreshAccessToken, registerUser };
