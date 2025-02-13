@@ -18,18 +18,12 @@ const registerUser = asyncHandler(async (req, res) => {
 
     // Validation: Ensure all fields are provided
     if (!username || !email || !fullName || !password) {
-        throw new APIError({
-            statusCode: 400,
-            message: "⚠️ All fields are required! 🚫",
-        });
+        throw new APIError(400, "⚠️ All fields are required! 🚫");
     }
 
     // Validate email format
     if (!isValidEmail(email)) {
-        throw new APIError({
-            statusCode: 400,
-            message: "⚠️ Invalid email address! 📧❌",
-        });
+        throw new APIError(400, "⚠️ Invalid email address! 📧❌");
     }
 
     // Check if user already exists (by email or username)
@@ -38,19 +32,18 @@ const registerUser = asyncHandler(async (req, res) => {
     });
 
     if (existingUser) {
-        throw new APIError({
-            statusCode: 409,
-            message: "⚠️ User with this email or username already exists! 👤❌",
-        });
+        throw new APIError(
+            409,
+            "⚠️ User with this email or username already exists! 👤❌"
+        );
     }
 
     // Validate password strength
     if (!isStrongPassword(password)) {
-        throw new APIError({
-            statusCode: 400,
-            message:
-                "⚠️ Weak password! Must be at least 8 characters long, include uppercase, lowercase, a number, and a special character. 🔐❌",
-        });
+        throw new APIError(
+            400,
+            "⚠️ Weak password! Must be at least 8 characters long, include uppercase, lowercase, a number, and a special character. 🔐❌"
+        );
     }
 
     // Handle file uploads
@@ -58,19 +51,16 @@ const registerUser = asyncHandler(async (req, res) => {
     const coverImageLocalPath = req.files?.coverImage?.[0]?.path;
 
     if (!avatarLocalPath) {
-        throw new APIError({
-            statusCode: 400,
-            message: "⚠️ Avatar image is required! 🖼️❌",
-        });
+        throw new APIError(400, "⚠️ Avatar image is required! 🖼️❌");
     }
 
     // Upload avatar image to Cloudinary
     const avatar = await uploadOnCloudinary(avatarLocalPath);
     if (!avatar) {
-        throw new APIError({
-            statusCode: 500,
-            message: "⚠️ Failed to upload avatar to Cloudinary! ☁️❌",
-        });
+        throw new APIError(
+            500,
+            "⚠️ Failed to upload avatar to Cloudinary! ☁️❌"
+        );
     }
 
     // Upload cover image if provided
@@ -97,20 +87,19 @@ const registerUser = asyncHandler(async (req, res) => {
     );
 
     if (!createdUser) {
-        throw new APIError({
-            statusCode: 500,
-            message: "⚠️ User creation failed! ❌",
-        });
+        throw new APIError(500, "⚠️ User creation failed! ❌");
     }
 
     // Return success response
-    return res.status(201).json(
-        new APIResponse({
-            statusCode: 201,
-            data: createdUser,
-            message: "🎉 User registered successfully! ✅",
-        })
-    );
+    return res
+        .status(201)
+        .json(
+            new APIResponse(
+                201,
+                createdUser,
+                "🎉 User registered successfully! ✅"
+            )
+        );
 });
 
 export { registerUser };
