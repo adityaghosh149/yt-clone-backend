@@ -10,7 +10,10 @@ import {
     updateUserAvatar,
     updateUserCoverImage,
 } from "../controllers/user.controller.js";
-import { verifyJWT } from "../middlewares/auth.middleware.js";
+import {
+    optionalVerifyJWT,
+    verifyJWT,
+} from "../middlewares/auth.middleware.js";
 import { upload } from "../middlewares/multer.middleware.js";
 
 const router = Router();
@@ -30,6 +33,7 @@ router.route("/logout").post(verifyJWT, logOutUser);
 router.route("/refresh-token").post(refreshAccessToken);
 
 router.route("/currrent-user").get(verifyJWT, getCurrentUser);
+router.route("/channel/:username").get(optionalVerifyJWT, getChannelDetails);
 
 router.route("/").post(verifyJWT, changeCurrentPassword);
 
