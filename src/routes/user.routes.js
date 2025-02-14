@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
     changeCurrentPassword,
     getCurrentUser,
+    getUserChannelProfile,
     loginUser,
     logOutUser,
     refreshAccessToken,
@@ -9,6 +10,7 @@ import {
     updateFullName,
     updateUserAvatar,
     updateUserCoverImage,
+    getWatchHistory
 } from "../controllers/user.controller.js";
 import {
     optionalVerifyJWT,
@@ -33,7 +35,9 @@ router.route("/logout").post(verifyJWT, logOutUser);
 router.route("/refresh-token").post(refreshAccessToken);
 
 router.route("/currrent-user").get(verifyJWT, getCurrentUser);
-router.route("/channel/:username").get(optionalVerifyJWT, getChannelDetails);
+router
+    .route("/channel/:username")
+    .get(optionalVerifyJWT, getUserChannelProfile);
 router.route("/watch-history").get(verifyJWT, getWatchHistory);
 
 router.route("/").post(verifyJWT, changeCurrentPassword);
