@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 import { User } from "../models/user.model.js";
 import { APIError } from "../utils/apiError.js";
 import { APIResponse } from "../utils/apiResponse.js";
@@ -526,10 +527,80 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
         );
 });
 
+const getWatchHistory = asyncHandler(async (req, res) => {
+    const user = req?.user;
+
+    if (!user) {
+        throw new APIError(400, "⚠️ User is missing");
+    }
+
+    const watchHistory = await User.aggregate([
+        {
+            $match: { _id: new mongoose.Types.ObjectId(user._id) },
+        },
+        {
+            $lookup: {
+                from: "videos",
+                localField: "watchHistory",
+                foreignField: "_id",
+                as: "watchHistory",
+                pipeline: [
+                    {
+                        $lookup: {
+                            from: "users",
+                            localField: "owner",
+                            foreignField: "_id",
+                            as: "owner",
+                            pipeline: [
+                                {
+                                    $project: {
+                                        fullName: 1,
+                                        username: 1,
+                                        avatar: 1,
+                                    },
+                                },
+                            ],
+                        },
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            title: 1,
+                            description: 1,
+                            owner: { $arrayElemAt: ["$owner", 0] },
+                        },
+                    },
+                ],
+            },
+        },
+        {
+            $project: {
+                _id: 0,
+                watchHistory: 1,
+            },
+        },
+    ]);
+
+    if (!watchHistory[0]?.watchHistory?.length) {
+        throw new APIError(404, "❌ No watch history found");
+    }
+
+    return res
+        .status(200)
+        .json(
+            new APIResponse(
+                200,
+                watchHistory[0],
+                "✅ Watch history fetched successfully"
+            )
+        );
+});
+
 export {
     changeCurrentPassword,
     getCurrentUser,
     getUserChannelProfile,
+    getWatchHistory,
     loginUser,
     logOutUser,
     refreshAccessToken,
