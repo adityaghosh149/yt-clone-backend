@@ -38,9 +38,13 @@ router.route("/watch-history").get(verifyJWT, getWatchHistory);
 
 router.route("/").post(verifyJWT, changeCurrentPassword);
 
-router.route("/update-fullname").post(verifyJWT, updateFullName);
+router.route("/update-fullname").patch(verifyJWT, updateFullName);
 
-router.route("/update-avatar").post(verifyJWT, updateUserAvatar);
-router.route("/update-cover-image").post(verifyJWT, updateUserCoverImage);
+router
+    .route("/update-avatar")
+    .patch(verifyJWT, upload.single("avatar"), updateUserAvatar);
+router
+    .route("/update-cover-image")
+    .patch(verifyJWT, upload.single("coverImage"), updateUserCoverImage);
 
 export default router;
