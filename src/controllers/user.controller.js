@@ -482,7 +482,7 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
                 },
                 isSubscribed: {
                     $cond: {
-                        if: { $eq: [currentUserId, null] }, 
+                        if: { $eq: [currentUserId, null] },
                         then: false,
                         else: {
                             $in: [
@@ -502,6 +502,9 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
         },
         {
             $project: {
+                watchHistory: 0,
+                password: 0,
+                refreshToken: 0,
                 subscribers: 0,
                 subscribedTo: 0,
             },
