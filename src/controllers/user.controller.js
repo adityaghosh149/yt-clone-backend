@@ -327,7 +327,9 @@ const getCurrentUser = asyncHandler(async (req, res) => {
         throw new APIError(401, "🚫 Unauthorized request!");
     }
 
-    return res.status(200).json(200, user, "Current user fetched sucessfully");
+    return res
+        .status(200)
+        .json(new APIResponse(200, user, "Current user fetched sucessfully"));
 });
 
 const updateFullName = asyncHandler(async (req, res) => {
