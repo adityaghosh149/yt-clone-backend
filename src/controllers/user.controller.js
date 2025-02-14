@@ -445,7 +445,7 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
     const { username } = req.params;
 
     if (!username?.trim()) {
-        throw new APIError(400, "Username is missing");
+        throw new APIError(400, "⚠️ Username is missing");
     }
 
     const currentUserId = req.user?._id || null;
@@ -512,7 +512,7 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
     ]);
 
     if (!channel?.length) {
-        return new APIError(404, "Channel not found");
+        return new APIError(404, "❌ Channel not found");
     }
 
     return res
@@ -521,7 +521,7 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
             new APIResponse(
                 200,
                 channel[0],
-                "Channel detaisl fetched sucessfully"
+                "✅ Channel details fetched sucessfully"
             )
         );
 });
