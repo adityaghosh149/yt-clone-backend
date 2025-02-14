@@ -367,6 +367,41 @@ const updateFullName = asyncHandler(async (req, res) => {
         );
 });
 
+const updateUserAvatar = asyncHandler(async (req, res) => {
+    const avatarLocalPath = req.file?.path;
+
+    if (!avatarLocalPath) {
+        throw new APIError(400, "⚠️ Avatar file is missing!");
+    }
+
+    const avatar = await uploadOnCloudinary(avatarLocalPath);
+
+    if (!avatar || !avatar.url) {
+        throw new APIError(500, "❌ Failed to upload avatar.");
+    }
+
+    const user = req.user;
+    if (!user) {
+        throw new APIError(401, "🚫 Unauthorized request!");
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+        user._id,
+        { $set: { avatar: avatar.url } },
+        { new: true, runValidators: true }
+    ).select("-password -refreshToken");
+
+    if (!updatedUser) {
+        throw new APIError(404, "❌ User not found!");
+    }
+
+    return res
+        .status(200)
+        .json(
+            new APIResponse(200, updatedUser, "✅ Avatar updated successfully!")
+        );
+});
+
 export {
     changeCurrentPassword,
     getCurrentUser,
@@ -375,4 +410,5 @@ export {
     refreshAccessToken,
     registerUser,
     updateFullName,
+    updateUserAvatar,
 };
