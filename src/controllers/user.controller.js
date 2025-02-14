@@ -402,6 +402,45 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
         );
 });
 
+const updateUserCoverImage = asyncHandler(async (req, res) => {
+    const coverImageLocalPath = req.file?.path;
+
+    if (!coverImageLocalPath) {
+        throw new APIError(400, "⚠️ CoverImage file is missing!");
+    }
+
+    const coverImage = await uploadOnCloudinary(coverImageLocalPath);
+
+    if (!coverImage || !coverImage.url) {
+        throw new APIError(500, "❌ Failed to upload coverImage.");
+    }
+
+    const user = req.user;
+    if (!user) {
+        throw new APIError(401, "🚫 Unauthorized request!");
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+        user._id,
+        { $set: { coverImage: coverImage.url } },
+        { new: true, runValidators: true }
+    ).select("-password -refreshToken");
+
+    if (!updatedUser) {
+        throw new APIError(404, "❌ User not found!");
+    }
+
+    return res
+        .status(200)
+        .json(
+            new APIResponse(
+                200,
+                updatedUser,
+                "✅ CoverImage updated successfully!"
+            )
+        );
+});
+
 export {
     changeCurrentPassword,
     getCurrentUser,
@@ -411,4 +450,5 @@ export {
     registerUser,
     updateFullName,
     updateUserAvatar,
+    updateUserCoverImage,
 };
