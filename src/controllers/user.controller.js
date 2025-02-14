@@ -319,8 +319,19 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
         .json(new APIResponse(200, {}, "✅ Password changed successfully!"));
 });
 
+const getCurrentUser = asyncHandler(async (req, res) => {
+    const user = req.user;
+
+    if (!user) {
+        throw new APIError(401, "🚫 Unauthorized request!");
+    }
+
+    return res.status(200).json(200, user, "Current user fetched sucessfully");
+});
+
 export {
     changeCurrentPassword,
+    getCurrentUser,
     loginUser,
     logOutUser,
     refreshAccessToken,
