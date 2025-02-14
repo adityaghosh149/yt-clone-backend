@@ -329,6 +329,44 @@ const getCurrentUser = asyncHandler(async (req, res) => {
     return res.status(200).json(200, user, "Current user fetched sucessfully");
 });
 
+const updateFullName = asyncHandler(async (req, res) => {
+    let { fullName } = req.body;
+
+    if (!fullName || !fullName.trim()) {
+        throw new APIError(400, "⚠️ Full name is required!");
+    }
+
+    fullName = fullName.trim();
+    if (fullName.length < 3) {
+        throw new APIError(400, "❌ Full name must be at least 3 characters!");
+    }
+
+    const user = req.user;
+    if (!user) {
+        throw new APIError(401, "🚫 Unauthorized request!");
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+        user._id,
+        { $set: { fullName } },
+        { new: true, runValidators: true }
+    ).select("-password -refreshToken");
+
+    if (!updatedUser) {
+        throw new APIError(404, "❌ User not found!");
+    }
+
+    return res
+        .status(200)
+        .json(
+            new APIResponse(
+                200,
+                updatedUser,
+                "✅ Full name updated successfully!"
+            )
+        );
+});
+
 export {
     changeCurrentPassword,
     getCurrentUser,
@@ -336,4 +374,5 @@ export {
     logOutUser,
     refreshAccessToken,
     registerUser,
+    updateFullName,
 };
