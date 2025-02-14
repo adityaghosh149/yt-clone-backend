@@ -45,8 +45,9 @@ router
     .route("/change-password")
     .post(verifyJWT, multer().none(), changeCurrentPassword);
 
-router.route("/update-fullname").patch(verifyJWT, updateFullName);
-
+router
+    .route("/update-fullname")
+    .patch(verifyJWT, multer().none(), updateFullName);
 router
     .route("/update-avatar")
     .patch(verifyJWT, upload.single("avatar"), updateUserAvatar);
