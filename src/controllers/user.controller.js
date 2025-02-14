@@ -589,7 +589,7 @@ const getWatchHistory = asyncHandler(async (req, res) => {
         },
     ]);
 
-    if (!watchHistory[0]?.watchHistory?.length) {
+    if (!watchHistory?.length) {
         throw new APIError(404, "❌ No watch history found");
     }
 
