@@ -1,4 +1,5 @@
 import { Router } from "express";
+import multer from "multer";
 import {
     changeCurrentPassword,
     getCurrentUser,
@@ -40,7 +41,9 @@ router
     .get(optionalVerifyJWT, getUserChannelProfile);
 router.route("/watch-history").get(verifyJWT, getWatchHistory);
 
-router.route("/change-password").post(verifyJWT, changeCurrentPassword);
+router
+    .route("/change-password")
+    .post(verifyJWT, multer().none(), changeCurrentPassword);
 
 router.route("/update-fullname").patch(verifyJWT, updateFullName);
 
