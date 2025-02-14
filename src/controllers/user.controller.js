@@ -278,4 +278,51 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     }
 });
 
-export { loginUser, logOutUser, refreshAccessToken, registerUser };
+const changeCurrentPassword = asyncHandler(async (req, res) => {
+    const { oldPassword, newPassword, retypeNewPassword } = req.body;
+
+    if (!oldPassword || !newPassword || !retypeNewPassword) {
+        throw new APIError(400, "⚠️ All fields are required!");
+    }
+
+    const user = req.user;
+    if (!user) {
+        throw new APIError(401, "🚫 Unauthorized request!");
+    }
+
+    const loggedInUser = await User.findById(user._id);
+    if (!loggedInUser) {
+        throw new APIError(404, "❌ User not found!");
+    }
+
+    const isPasswordCorrect = await loggedInUser.isPasswordCorrect(oldPassword);
+    if (!isPasswordCorrect) {
+        throw new APIError(403, "🔑 Incorrect current password!");
+    }
+
+    if (!isStrongPassword(newPassword)) {
+        throw new APIError(400, "🔐 Please enter a stronger password!");
+    }
+
+    if (newPassword !== retypeNewPassword) {
+        throw new APIError(
+            400,
+            "⚠️ New password and confirmation do not match!"
+        );
+    }
+
+    loggedInUser.password = newPassword;
+    await loggedInUser.save({ validateBeforeSave: false });
+
+    return res
+        .status(200)
+        .json(new APIResponse(200, {}, "✅ Password changed successfully!"));
+});
+
+export {
+    changeCurrentPassword,
+    loginUser,
+    logOutUser,
+    refreshAccessToken,
+    registerUser,
+};
