@@ -280,44 +280,50 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 });
 
 const changeCurrentPassword = asyncHandler(async (req, res) => {
-    const { oldPassword, newPassword, retypeNewPassword } = req.body;
+    const { currentPassword, newPassword, retypeNewPassword } = req.body;
 
-    if (!oldPassword || !newPassword || !retypeNewPassword) {
-        throw new APIError(400, "⚠️ All fields are required!");
-    }
-
-    const user = req.user;
-    if (!user) {
-        throw new APIError(401, "🚫 Unauthorized request!");
-    }
-
-    const loggedInUser = await User.findById(user._id);
-    if (!loggedInUser) {
-        throw new APIError(404, "❌ User not found!");
-    }
-
-    const isPasswordCorrect = await loggedInUser.isPasswordCorrect(oldPassword);
-    if (!isPasswordCorrect) {
-        throw new APIError(403, "🔑 Incorrect current password!");
-    }
-
-    if (!isStrongPassword(newPassword)) {
-        throw new APIError(400, "🔐 Please enter a stronger password!");
+    // Validate input fields
+    if (!currentPassword || !newPassword || !retypeNewPassword) {
+        throw new APIError(400, "⚠️ All fields are required.");
     }
 
     if (newPassword !== retypeNewPassword) {
-        throw new APIError(
-            400,
-            "⚠️ New password and confirmation do not match!"
-        );
+        throw new APIError(400, "❌ Passwords do not match.");
     }
 
+    if (!isStrongPassword(newPassword)) {
+        throw new APIError(400, "🔐 Weak password, use a stronger one.");
+    }
+
+    if (currentPassword === newPassword) {
+        throw new APIError(400, "⚠️ New password cannot be the same.");
+    }
+
+    // Ensure user is authenticated
+    if (!req.user) {
+        throw new APIError(401, "🚫 Unauthorized request.");
+    }
+
+    // Fetch user from database
+    const loggedInUser = await User.findById(req.user._id);
+    if (!loggedInUser) {
+        throw new APIError(404, "❌ User not found.");
+    }
+
+    // Verify current password
+    const isPasswordCorrect =
+        await loggedInUser.isPasswordCorrect(currentPassword);
+    if (!isPasswordCorrect) {
+        throw new APIError(403, "🔑 Incorrect password.");
+    }
+
+    // Update and save new password
     loggedInUser.password = newPassword;
     await loggedInUser.save({ validateBeforeSave: false });
 
     return res
         .status(200)
-        .json(new APIResponse(200, {}, "✅ Password changed successfully!"));
+        .json(new APIResponse(200, {}, "✅ Password updated."));
 });
 
 const getCurrentUser = asyncHandler(async (req, res) => {

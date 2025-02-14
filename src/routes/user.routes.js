@@ -3,6 +3,7 @@ import {
     changeCurrentPassword,
     getCurrentUser,
     getUserChannelProfile,
+    getWatchHistory,
     loginUser,
     logOutUser,
     refreshAccessToken,
@@ -10,7 +11,6 @@ import {
     updateFullName,
     updateUserAvatar,
     updateUserCoverImage,
-    getWatchHistory
 } from "../controllers/user.controller.js";
 import {
     optionalVerifyJWT,
@@ -40,7 +40,7 @@ router
     .get(optionalVerifyJWT, getUserChannelProfile);
 router.route("/watch-history").get(verifyJWT, getWatchHistory);
 
-router.route("/").post(verifyJWT, changeCurrentPassword);
+router.route("/change-password").post(verifyJWT, changeCurrentPassword);
 
 router.route("/update-fullname").patch(verifyJWT, updateFullName);
 
